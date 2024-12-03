@@ -1,5 +1,5 @@
-use std::path::Path;
+mod day1;
 
 fn main() {
-    let path = Path::new("");
+    day1::part2::historian_hysteria::problem();
 }
