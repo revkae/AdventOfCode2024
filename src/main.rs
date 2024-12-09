@@ -1,5 +1,7 @@
 mod day1;
+mod day2;
+mod day3;
 
 fn main() {
-    day1::part2::historian_hysteria::problem();
+    day3::part1::corrupted_memory::problem()
 }

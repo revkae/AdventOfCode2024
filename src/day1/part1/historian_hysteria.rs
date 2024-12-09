@@ -2,6 +2,10 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
+#[allow(clippy::all)]
+#[allow(unused_variables)]
+#[allow(warnings)]
+
 pub fn problem() {
     let path = Path::new("C:\\Users\\test\\RustroverProjects\\AdventOfCode2024\\src\\day1\\input.txt");
 
