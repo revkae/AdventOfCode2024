@@ -4,5 +4,5 @@ mod day3;
 mod day4;
 
 fn main() {
-    day4::part1::xmas_word::problem()
+    day4::part2::xmas_word::problem()
 }

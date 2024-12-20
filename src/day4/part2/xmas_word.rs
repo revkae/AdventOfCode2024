@@ -2,105 +2,79 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Lines};
 use std::path::Path;
 use std::str::Chars;
-use regex::Regex;
 
 pub fn problem() {
     let lines: Lines<BufReader<File>> = load_lines();
-    let mut memory: String = lines
-        .map_while(Result::ok)
-        .collect::<Vec<String>>()
-        .join("");
 
-    let mut sum = 0;
-    println!("{}", memory.len());
-    let re = Regex::new(r"don't\(\).*?do\(\)").unwrap();
-    
-    memory = re.replace_all(memory.as_str(), "").parse().unwrap();
-    
-    println!("{}", memory.len());
-
-    for (index, _) in memory.match_indices("mul(") {
-        let start = memory.chars().nth(index + 2).unwrap();
-        let result = check(start, &memory, index);
-        if result.0 {
-            sum += (result.1.parse::<i32>().unwrap() * result.2.parse::<i32>().unwrap());
+    let mut memory: Vec<Vec<String>> = Vec::new();
+    for line in lines {
+        match line {
+            Ok(content) => {
+                let char_vec = content.chars().map(|c| c.to_string()).collect();
+                memory.push(char_vec);
+            },
+            Err(e) => println!("Error: {}", e)
         }
     }
+    let target = ["M", "A", "S"];
+    let mut sum = 0;
+    let rows = memory.len();
+    let cols = memory[0].len();
+    let directions = [
+        (1, 1),
+        (1, -1),
+    ];
+
+    let mut all_As: Vec<(usize, usize)> = Vec::new();
+    for x in 0..rows {
+        for y in 0..cols {
+            if &memory[x][y] == "A" {
+                all_As.push((x, y));
+            }
+        }
+    }
+
+    for a in all_As {
+        if check_mas(&memory, a) {
+            sum += 1;
+        }
+    }
+
     println!("{}", sum);
 }
 
-fn check(start: char, memory: &str, index: usize) -> (bool, String, String) {
-    let mut count = 4;
-    let mut control = memory.chars().nth(index + count).unwrap();
-    let mut firstNumber = String::new();
-    let mut secondNumber = String::new();
-    let mut foundFirstNumber = false;
-    let mut foundSecondNumber = false;
-    let mut foundComma = false;
-    while true {
-        if foundComma {
-            break;
-        }
+fn check_mas(memory: &[Vec<String>], current_pos: (usize, usize)) -> bool {
+    let allowed = ["MAS", "SAM"];
+    let first = check_direction(memory, (current_pos.0.wrapping_sub(1), current_pos.1 + 1), (1, -1));
+    let second = check_direction(memory, (current_pos.0.wrapping_sub(1), current_pos.1.wrapping_sub(1)), (1, 1));
 
-        if !foundFirstNumber && control.is_numeric() {
-            foundFirstNumber = true;
-            firstNumber.push(control);
-        }
-        else if !foundFirstNumber && !control.is_numeric() {
-            break;
-        }
-        else if foundFirstNumber && control.is_numeric() {
-            firstNumber.push(control);
-        }
-        else if foundFirstNumber && control == ',' {
-            foundComma = true;
-        } else {
-            break;
-        }
-
-        count += 1;
-        control = memory.chars().nth(index + count).unwrap();
+    if (first == allowed[0] || first == allowed[1]) && (second == allowed[0] || second == allowed[1]) {
+        return true;
     }
 
-    if !foundComma {
-        return (false, firstNumber, secondNumber);
+    false
+}
+
+fn check_direction(memory: &[Vec<String>], current_pos: (usize, usize), direction: (isize, isize)) -> String {
+    let mut x = current_pos.0 as isize;
+    let mut y = current_pos.1 as isize;
+    let mut word = String::new();
+
+    for i in 0..3 {
+        if x < 0 || x >= memory.len() as isize || y < 0 || y >= memory[0].len() as isize {
+            return word;
+        }
+        let ch = memory[x as usize][y as usize].clone();
+        word.push_str(&ch);
+        x += direction.0;
+        y += direction.1;
     }
 
-    let mut foundPar = false;
-    while true {
-        if foundPar {
-            break;
-        }
-
-        if !foundSecondNumber && control.is_numeric() {
-            foundSecondNumber = true;
-            secondNumber.push(control);
-        }
-        else if !foundSecondNumber && !control.is_numeric() {
-            break;
-        }
-        else if foundSecondNumber && control.is_numeric() {
-            secondNumber.push(control);
-        }
-        else if foundSecondNumber && control == ')' {
-            foundPar = true;
-        } else {
-            break;
-        }
-
-        count += 1;
-        control = memory.chars().nth(index + count).unwrap();
-    }
-
-    if foundComma && foundPar {
-        return (true, firstNumber, secondNumber);
-    }
-
-    (false, firstNumber, secondNumber)
+    word
 }
 
 fn load_lines() -> Lines<BufReader<File>> {
-    let path = Path::new("C:\\Users\\test\\RustroverProjects\\AdventOfCode2024\\src\\day3\\input.txt");
+    let path = Path::new("C:\\Users\\test\\RustroverProjects\\AdventOfCode2024\\src\\day4\\input.txt");
 
     let file = File::open(path).unwrap();
 
