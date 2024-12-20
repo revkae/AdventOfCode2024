@@ -1,7 +1,8 @@
 mod day1;
 mod day2;
 mod day3;
+mod day4;
 
 fn main() {
-    day3::part2::corrupted_memory::problem()
+    day4::part1::xmas_word::problem()
 }
