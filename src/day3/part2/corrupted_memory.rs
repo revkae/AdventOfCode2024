@@ -2,15 +2,23 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Lines};
 use std::path::Path;
 use std::str::Chars;
+use regex::Regex;
 
 pub fn problem() {
     let lines: Lines<BufReader<File>> = load_lines();
-    let memory: String = lines
+    let mut memory: String = lines
         .map_while(Result::ok)
         .collect::<Vec<String>>()
         .join("");
 
     let mut sum = 0;
+    println!("{}", memory.len());
+    let re = Regex::new(r"don't\(\).*?do\(\)").unwrap();
+    
+    memory = re.replace_all(memory.as_str(), "").parse().unwrap();
+    
+    println!("{}", memory.len());
+
     for (index, _) in memory.match_indices("mul(") {
         let start = memory.chars().nth(index + 2).unwrap();
         let result = check(start, &memory, index);
